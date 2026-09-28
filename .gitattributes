@@ -1,0 +1,19 @@
+# Normalize line endings: store all text files with LF in the repository.
+# This silences the "LF will be replaced by CRLF" warnings on Windows and
+# keeps the repo consistent across operating systems.
+* text=auto eol=lf
+
+# Be explicit for the file types in this project.
+*.py   text
+*.md   text
+*.txt  text
+*.csv  text
+*.ini  text
+*.cfg  text
+*.toml text
+*.yml  text
+*.yaml text
+
+# Files that must keep LF to run correctly.
+Dockerfile* text eol=lf
+*.sh        text eol=lf
