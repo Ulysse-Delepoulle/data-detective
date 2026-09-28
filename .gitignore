@@ -1,0 +1,24 @@
+# Virtual environment
+.venv/
+
+# Python caches / build
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Secrets and local config
+.env
+*.key
+
+# Generated outputs (reports, charts)
+outputs/
+
+# Large or generated data (sample datasets stay tracked)
+data/benchmark/synthetic/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
