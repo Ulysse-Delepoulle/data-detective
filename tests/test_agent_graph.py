@@ -24,6 +24,19 @@ GOOD_CODE = (
 )
 BAD_CODE = "print(this_name_does_not_exist)\n"
 
+PLOT_CODE = (
+    "import os\n"
+    "import pandas as pd\n"
+    "import matplotlib\n"
+    "import matplotlib.pyplot as plt\n"
+    "df = pd.read_csv(os.environ['DATASET_PATH'])\n"
+    "df['rev'] = df['units'] * df['price']\n"
+    "rev = df.groupby('region')['rev'].sum()\n"
+    "print('Total revenue:', float(df['rev'].sum()))\n"
+    "rev.plot(kind='bar')\n"
+    "plt.savefig('chart.png', bbox_inches='tight')\n"
+)
+
 # A valid JSON report, used as the scripted reply for the write_report node
 # after the code succeeds. The backend wraps every reply in a fence, which
 # the report builder strips before parsing.
@@ -106,6 +119,22 @@ def test_retry_then_success():
         assert len(final["history"]) == 2
         assert final["history"][0].exit_code != 0
         assert final["history"][1].exit_code == 0
+    finally:
+        shutil.rmtree(final["execution"].work_dir, ignore_errors=True)
+
+
+@pytest.mark.docker
+def test_chart_is_captured_in_report():
+    # The code saves a chart.png; it should land in output_files and in the
+    # report's chart_files, which is what the UI displays.
+    backend = ScriptedBackend([PLOT_CODE, REPORT_JSON])
+    final = run_agent("Plot revenue by region.", DATASET, backend=backend, max_attempts=2)
+    try:
+        assert final["execution"].exit_code == 0
+        pngs = [f for f in final["execution"].output_files if f.lower().endswith(".png")]
+        assert pngs, "expected a saved chart png in the output"
+        assert final["report"] is not None
+        assert any(c.lower().endswith(".png") for c in final["report"].chart_files)
     finally:
         shutil.rmtree(final["execution"].work_dir, ignore_errors=True)
 
