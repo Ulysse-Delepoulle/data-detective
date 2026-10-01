@@ -26,15 +26,17 @@ Pick a dataset and preview it before asking:
 
 ![Dataset preview](docs/images/dataset_preview.PNG)
 
-The reasoning transcript shows the agent correcting itself: the first attempt
-failed, the second succeeded.
+The reasoning transcript shows the agent correcting itself. For the question
+*"Which sex had the higher survival rate, male or female?"* on the Titanic data,
+the first attempt failed and the second succeeded.
 
 ![Reasoning transcript](docs/images/transcript.PNG)
 
 When a question asks for a visualization, the agent writes and runs the plotting
-code and the chart appears in the report:
+code and the chart appears in the report. Here for
+*"Plot total monthly sales over time"* on the Superstore data:
 
-![Generated chart: total monthly sales over time](docs/images/plot.PNG)
+![Generated chart in the report card](docs/images/plot.PNG)
 
 ## How it works
 
@@ -190,11 +192,15 @@ matches the frontier model, and the self-correction loop covers the occasional
 first-try miss. The frontier model pulls ahead on messier, multi-step work. The
 remaining trade-offs are cost, speed, and privacy, which favor the local option.
 
-The same data-cleaning question on each backend, the failure next to the fix:
+The same data-cleaning question on each backend, the failure and the fix:
 
-| Local: no working analysis after 3 tries | Cloud: correct on the first try |
-|-------------------------------------------|---------------------------------|
-| ![Local model fails the data-cleaning case](docs/images/hard_ollama_fail.PNG) | ![Cloud model solves it](docs/images/hard_claude_success.PNG) |
+**Local (Ollama): no working analysis after three attempts.**
+
+![Local model fails the data-cleaning case](docs/images/hard_ollama_fail.PNG)
+
+**Cloud (Claude): correct on the first try.**
+
+![Cloud model solves it](docs/images/hard_claude_success.PNG)
 
 ## Design decisions
 
