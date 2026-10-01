@@ -197,6 +197,12 @@ matches the frontier model, and the self-correction loop covers the occasional
 first-try miss. The frontier model pulls ahead on messier, multi-step work. The
 remaining trade-offs are cost, speed, and privacy, which favor the local option.
 
+The same data-cleaning question on each backend, the failure next to the fix:
+
+| Local: no working analysis after 3 tries | Cloud: correct on the first try |
+|-------------------------------------------|---------------------------------|
+| ![Local model fails the data-cleaning case](docs/images/hard_ollama_fail.PNG) | ![Cloud model solves it](docs/images/hard_claude_success.PNG) |
+
 ## Design decisions
 
 - **Docker isolation is non-negotiable.** The agent runs model-written code, so
