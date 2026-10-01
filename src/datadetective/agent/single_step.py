@@ -28,6 +28,12 @@ SYSTEM_PROMPT = (
     "- Print the final answer clearly using print().\n"
     "- Also print the key numbers behind the answer, so the figures are "
     "visible in the output, not just the conclusion.\n"
+    "- If the question asks for a chart, plot, trend over time, distribution, or "
+    "any visual comparison, create it with matplotlib and save it to the current "
+    "directory with plt.savefig('chart.png', bbox_inches='tight'). Do not call "
+    "plt.show(). You may save more than one figure under different names. Always "
+    "also print the exact data series behind any chart you save, so the real "
+    "numbers appear in the output.\n"
     "- Reply with exactly one Python code block and nothing else."
 )
 
