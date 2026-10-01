@@ -22,11 +22,21 @@ The project demonstrates four things that a plain chat assistant does not give y
 
 ## Screenshots
 
-| Report | Reasoning transcript |
-|--------|----------------------|
-| ![Report view](docs/images/report.png) | ![Reasoning transcript](docs/images/transcript.png) |
+Pick a dataset and preview it before asking:
 
-![Dataset preview](docs/images/dataset_preview.png)
+![Dataset preview](docs/images/dataset_preview.PNG)
+
+The same question answered on each backend. Both are correct; the cloud model
+goes deeper, listing the raw survivor counts and a fuller method:
+
+| Local (Ollama) | Cloud (Claude) |
+|----------------|----------------|
+| ![Report on the local model](docs/images/report_ollama.PNG) | ![Report on the cloud model](docs/images/report_claude.PNG) |
+
+The reasoning transcript shows the agent correcting itself: the first attempt
+failed, the second succeeded.
+
+![Reasoning transcript](docs/images/transcript.PNG)
 
 ## How it works
 
