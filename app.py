@@ -38,6 +38,10 @@ from datadetective.llm.ollama_backend import OllamaBackend
 
 _SAMPLE_DIR = Path(__file__).parent / "data" / "sample_datasets"
 _OLLAMA_HOST = "http://localhost:11434"
+# These tiny synthetic files exist only for the eval's smoke tier. Hide them
+# from the UI so the dropdown stays focused on the real datasets plus one
+# simple example (sample_sales).
+_EVAL_ONLY_DATASETS = {"employees.csv", "monthly_visits.csv"}
 
 
 # --------------------------------------------------------------------------
@@ -319,7 +323,11 @@ st.markdown(
 with st.container(border=True):
     section_header("1", "Dataset")
     samples = (
-        sorted(p.name for p in _SAMPLE_DIR.glob("*.csv"))
+        sorted(
+            p.name
+            for p in _SAMPLE_DIR.glob("*.csv")
+            if p.name not in _EVAL_ONLY_DATASETS
+        )
         if _SAMPLE_DIR.exists()
         else []
     )
