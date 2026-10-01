@@ -4,12 +4,14 @@ The graph:
 
     write_code --> execute --> decide
                                   |
-        success/give_up --> finalize --> END
-        retry -------------------------> write_code
+        success -----> write_report --> finalize --> END
+        give_up ---------------------> finalize --> END
+        retry -----------------------> write_code
 
 The conditional edge after "execute" is what makes the agent
 self-correcting: on failure with attempts left it loops back to
-write_code, otherwise it finalizes.
+write_code. On success it goes to write_report, which turns the raw
+output into a validated structured report before finalizing.
 """
 from __future__ import annotations
 
@@ -17,7 +19,13 @@ from langgraph.graph import END, StateGraph
 
 from ..llm.base import LLMBackend
 from ..sandbox.config import DEFAULT_CONFIG, SandboxConfig
-from .nodes import decide_next, finalize, make_execute_node, make_write_code_node
+from .nodes import (
+    decide_next,
+    finalize,
+    make_execute_node,
+    make_report_node,
+    make_write_code_node,
+)
 from .state import AgentState
 
 
@@ -27,6 +35,7 @@ def build_agent(backend: LLMBackend, config: SandboxConfig = DEFAULT_CONFIG):
 
     graph.add_node("write_code", make_write_code_node(backend))
     graph.add_node("execute", make_execute_node(config))
+    graph.add_node("write_report", make_report_node(backend))
     graph.add_node("finalize", finalize)
 
     graph.set_entry_point("write_code")
@@ -36,11 +45,12 @@ def build_agent(backend: LLMBackend, config: SandboxConfig = DEFAULT_CONFIG):
         "execute",
         decide_next,
         {
-            "success": "finalize",
+            "success": "write_report",
             "retry": "write_code",
             "give_up": "finalize",
         },
     )
+    graph.add_edge("write_report", "finalize")
     graph.add_edge("finalize", END)
 
     return graph.compile()
@@ -63,5 +73,6 @@ def run_agent(
         "execution": None,
         "attempts": 0,
         "answer": "",
+        "report": None,
     }
     return app.invoke(initial_state)
