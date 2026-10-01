@@ -20,6 +20,14 @@ The project demonstrates four things that a plain chat assistant does not give y
 4. **Measured quality.** An evaluation harness scores the agent on real datasets
    with known answers.
 
+## Screenshots
+
+| Report | Reasoning transcript |
+|--------|----------------------|
+| ![Report view](docs/images/report.png) | ![Reasoning transcript](docs/images/transcript.png) |
+
+![Dataset preview](docs/images/dataset_preview.png)
+
 ## How it works
 
 ```
@@ -92,8 +100,12 @@ tests/                     pytest suite
 
 ```bash
 python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r requirements.txt -r requirements-dev.txt
+.venv/Scripts/python.exe -m pip install -e ".[dev]"
 ```
+
+This installs the package in editable mode, so `datadetective` is importable
+and the `datadetective-eval` command is available. A plain `requirements.txt` is
+also provided if you prefer it.
 
 ### Build the sandbox image
 
@@ -129,10 +141,11 @@ Opens at http://localhost:8501.
 ### Run the evaluation
 
 ```bash
-# PowerShell
-$env:PYTHONPATH="src"; .venv/Scripts/python.exe -m datadetective.eval.runner
-# local Ollama is the default; use --backend cloud for Claude (costs money)
+datadetective-eval                                          # local Ollama (free)
+datadetective-eval --backend cloud --model claude-sonnet-4-6   # Claude (costs money)
 ```
+
+(Equivalent to `python -m datadetective.eval.runner`.)
 
 ### Run the tests
 
@@ -143,20 +156,25 @@ $env:PYTHONPATH="src"; .venv/Scripts/python.exe -m datadetective.eval.runner
 
 ## Evaluation results
 
-Local model (`qwen2.5:7b`), 24 cases:
+The same 28 cases were run on both backends:
 
-| tier       | accuracy | completion | avg attempts | cases |
-|------------|----------|------------|--------------|-------|
-| benchmark  | 100%     | 100%       | 1.06         | 17    |
-| smoke      | 100%     | 100%       | 1.00         | 7     |
-| overall    | 100%     | 100%       | 1.04         | 24    |
+| backend                   | accuracy | completion | avg attempts |
+|---------------------------|----------|------------|--------------|
+| Local `qwen2.5:7b`        | 100%     | 100%       | 1.04         |
+| Cloud `claude-sonnet-4-6` | 100%     | 100%       | 1.00         |
 
-The **benchmark** tier is the meaningful signal: real datasets (Titanic,
-Superstore, Telco Churn), including harder filter-then-aggregate questions. The
-**smoke** tier is tiny synthetic data used as fast regression coverage, reported
-separately so it does not inflate the headline. These are well-posed questions,
-so the result shows reliable answering on clear questions, not open-ended
-reasoning.
+Both reached 100% on every tier (benchmark 17 real-data cases including
+multi-step questions, hard 4 filter-then-aggregate cases, smoke 7 tiny synthetic
+cases used as fast regression coverage). The tiers are scored separately so the
+trivial smoke cases do not inflate the headline.
+
+Reading the comparison honestly: on these well-posed analytical questions the
+local 7B model matches the frontier model on accuracy. The one measurable
+difference is first-try reliability. Sonnet needed no retries, while the local
+model recovered one case through self-correction (1.04 average attempts). That is
+the point of the retry loop: it lets a smaller, free, private model reach the
+same accuracy. The remaining trade-offs are cost, speed, and privacy, which
+favor the local option.
 
 ## Design decisions
 

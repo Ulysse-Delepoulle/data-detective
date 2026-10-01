@@ -86,8 +86,18 @@ def _print_summary_line(label: str, s: dict) -> None:
 
 
 def main() -> None:
+    # Load .env so the cloud backend finds ANTHROPIC_API_KEY when run as a CLI.
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
     parser = argparse.ArgumentParser(description="Run the DataDetective eval.")
     parser.add_argument("--backend", choices=["local", "cloud"], default="local")
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Override the model id (e.g. claude-sonnet-4-6 for cloud).",
+    )
     parser.add_argument("--max-attempts", type=int, default=3)
     parser.add_argument("--no-cache", action="store_true", help="bypass the LLM cache")
     args = parser.parse_args()
@@ -96,15 +106,18 @@ def main() -> None:
     if args.backend == "cloud":
         from ..llm.claude_backend import ClaudeBackend
 
-        inner: LLMBackend = ClaudeBackend()
+        inner: LLMBackend = (
+            ClaudeBackend(model=args.model) if args.model else ClaudeBackend()
+        )
     else:
         from ..llm.ollama_backend import OllamaBackend
 
-        inner = OllamaBackend()
+        inner = OllamaBackend(model=args.model) if args.model else OllamaBackend()
 
     backend = inner if args.no_cache else CachingBackend(inner)
 
-    print(f"Running {len(CASES)} cases on backend={args.backend} ...\n")
+    model_label = getattr(inner, "model", args.backend)
+    print(f"Running {len(CASES)} cases on backend={args.backend} ({model_label}) ...\n")
     results = run_eval(backend, max_attempts=args.max_attempts)
 
     print()
