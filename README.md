@@ -26,13 +26,6 @@ Pick a dataset and preview it before asking:
 
 ![Dataset preview](docs/images/dataset_preview.PNG)
 
-The same question answered on each backend. Both are correct; the cloud model
-goes deeper, listing the raw survivor counts and a fuller method:
-
-| Local (Ollama) | Cloud (Claude) |
-|----------------|----------------|
-| ![Report on the local model](docs/images/report_ollama.PNG) | ![Report on the cloud model](docs/images/report_claude.PNG) |
-
 The reasoning transcript shows the agent correcting itself: the first attempt
 failed, the second succeeded.
 
