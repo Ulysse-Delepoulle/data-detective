@@ -18,7 +18,7 @@ from ..report.builder import build_report
 from ..sandbox.config import DEFAULT_CONFIG, SandboxConfig
 from ..sandbox.executor import ExecutionResult, run_code
 from .single_step import SYSTEM_PROMPT, build_prompt, extract_code
-from .state import AgentState
+from .state import AgentState, AttemptRecord
 
 # File extensions we treat as charts worth listing in the report.
 _IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".svg")
@@ -58,7 +58,17 @@ def make_execute_node(
             dataset_path=state["dataset_path"],
             config=config,
         )
-        return {"execution": result}
+        record = AttemptRecord(
+            attempt=state["attempts"],   # write_code already incremented it
+            code=state["code"],
+            stdout=result.stdout,
+            stderr=result.stderr,
+            exit_code=result.exit_code,
+            timed_out=result.timed_out,
+        )
+        # Return the whole list, not just the new item: LangGraph replaces the
+        # value of a key with what we return, so we append then hand back all.
+        return {"execution": result, "history": state["history"] + [record]}
 
     return execute
 

@@ -102,6 +102,10 @@ def test_retry_then_success():
         assert "West" in final["answer"]   # the good code's output
         assert final["report"] is not None
         assert "West" in final["report"].finding
+        # The transcript recorded both attempts: the failure then the fix.
+        assert len(final["history"]) == 2
+        assert final["history"][0].exit_code != 0
+        assert final["history"][1].exit_code == 0
     finally:
         shutil.rmtree(final["execution"].work_dir, ignore_errors=True)
 
