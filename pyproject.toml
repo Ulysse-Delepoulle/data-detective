@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datadetective"
+version = "0.1.0"
+description = "Autonomous data analyst agent with a sandboxed, self-correcting code loop."
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic==1.11.0",
+    "langgraph==1.2.12",
+    "pandas==3.0.6",
+    "pydantic==2.13.5",
+    "python-dotenv==1.1.1",
+    "requests==2.32.3",
+    "streamlit==1.64.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest==9.1.1"]
+
+[project.scripts]
+datadetective-eval = "datadetective.eval.runner:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

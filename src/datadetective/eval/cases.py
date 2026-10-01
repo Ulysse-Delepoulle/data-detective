@@ -161,4 +161,30 @@ CASES: tuple[BenchmarkCase, ...] = (
         "How many Month-to-month contract customers churned (Contract is Month-to-month and Churn equals Yes)?",
         ("1655",),
     ),
+
+    # ----------------------------------------------------------------------
+    # HARD: multi-step reasoning, shared by both backends so local and cloud
+    # can be compared where there is headroom to differ.
+    # ----------------------------------------------------------------------
+    BenchmarkCase(
+        "titanic_children_3rd_survived", "titanic.csv",
+        "How many children (Age under 18) in third class (Pclass equals 3) survived?",
+        ("29",), tier="hard",
+    ),
+    BenchmarkCase(
+        "super_lowest_profit_subcategory", "superstore.csv",
+        "Which Sub-Category has the lowest (most negative) total Profit?",
+        ("Tables",), tier="hard",
+    ),
+    BenchmarkCase(
+        "super_negative_profit_subcats", "superstore.csv",
+        "Which Sub-Categories have a negative total Profit? List all of them.",
+        ("Tables", "Bookcases", "Supplies"), tier="hard",
+    ),
+    BenchmarkCase(
+        "telco_fiber_churned", "telco_churn.csv",
+        "How many customers with Fiber optic internet service churned (Churn equals Yes)?",
+        ("1297",), tier="hard",
+    ),
 )
+
