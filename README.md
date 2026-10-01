@@ -38,6 +38,11 @@ failed, the second succeeded.
 
 ![Reasoning transcript](docs/images/transcript.PNG)
 
+When a question asks for a visualization, the agent writes and runs the plotting
+code and the chart appears in the report:
+
+![Generated chart: total monthly sales over time](docs/images/plot.PNG)
+
 ## How it works
 
 ```
