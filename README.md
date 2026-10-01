@@ -78,7 +78,9 @@ further step turns the raw output into a Pydantic-validated report.
   A Pydantic model plus a build step that retries when the model returns invalid
   JSON or a report that fails validation.
 - **Streamlit UI** ([app.py](app.py)). Pick a dataset, preview it, choose the
-  backend, ask a question, and read the report and the reasoning transcript.
+  backend, ask a question, and read the report, any charts the agent drew, and
+  the reasoning transcript. The agent saves a matplotlib figure when a question
+  asks for a trend, distribution, or other visual.
 - **Evaluation harness** ([src/datadetective/eval/](src/datadetective/eval/)).
   Deterministic scoring over synthetic and real datasets, reported per tier.
 
@@ -166,25 +168,29 @@ datadetective-eval --backend cloud --model claude-sonnet-4-6   # Claude (costs m
 
 ## Evaluation results
 
-The same 28 cases were run on both backends:
+The same 32 cases were run on both backends:
 
 | backend                   | accuracy | completion | avg attempts |
 |---------------------------|----------|------------|--------------|
-| Local `qwen2.5:7b`        | 100%     | 100%       | 1.04         |
+| Local `qwen2.5:7b`        | 97%      | 97%        | 1.09         |
 | Cloud `claude-sonnet-4-6` | 100%     | 100%       | 1.00         |
 
-Both reached 100% on every tier (benchmark 17 real-data cases including
-multi-step questions, hard 4 filter-then-aggregate cases, smoke 7 tiny synthetic
-cases used as fast regression coverage). The tiers are scored separately so the
-trivial smoke cases do not inflate the headline.
+The cases are split into tiers, scored separately so the trivial cases do not
+inflate the headline: smoke (7 tiny synthetic cases, fast regression coverage),
+benchmark (17 real-data cases including multi-step questions), and hard (8
+harder multi-step and messy-data questions).
 
-Reading the comparison honestly: on these well-posed analytical questions the
-local 7B model matches the frontier model on accuracy. The one measurable
-difference is first-try reliability. Sonnet needed no retries, while the local
-model recovered one case through self-correction (1.04 average attempts). That is
-the point of the retry loop: it lets a smaller, free, private model reach the
-same accuracy. The remaining trade-offs are cost, speed, and privacy, which
-favor the local option.
+The two models diverge exactly where it is hard. The local model scored 88% on
+the hard tier: it failed the one case that requires data cleaning, summing
+Telco's `TotalCharges` column which contains blank strings. It confused two
+pandas APIs, writing `.astype(float, errors='coerce')` instead of
+`pd.to_numeric(..., errors='coerce')`, and could not recover in three attempts.
+Sonnet handled every case on the first try, including that one.
+
+The honest reading: on well-posed, clean-data questions a free, local 7B model
+matches the frontier model, and the self-correction loop covers the occasional
+first-try miss. The frontier model pulls ahead on messier, multi-step work. The
+remaining trade-offs are cost, speed, and privacy, which favor the local option.
 
 ## Design decisions
 
