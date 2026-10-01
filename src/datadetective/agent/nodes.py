@@ -14,10 +14,14 @@ from __future__ import annotations
 from typing import Callable
 
 from ..llm.base import LLMBackend
+from ..report.builder import build_report
 from ..sandbox.config import DEFAULT_CONFIG, SandboxConfig
-from ..sandbox.executor import run_code
+from ..sandbox.executor import ExecutionResult, run_code
 from .single_step import SYSTEM_PROMPT, build_prompt, extract_code
 from .state import AgentState
+
+# File extensions we treat as charts worth listing in the report.
+_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".svg")
 
 
 def _prompt_for_attempt(state: AgentState) -> str:
@@ -57,6 +61,37 @@ def make_execute_node(
         return {"execution": result}
 
     return execute
+
+
+def _chart_files(execution: ExecutionResult) -> list[str]:
+    """Pick the image files out of everything the sandbox wrote."""
+    return [
+        path
+        for path in execution.output_files
+        if path.lower().endswith(_IMAGE_EXTENSIONS)
+    ]
+
+
+def make_report_node(
+    backend: LLMBackend, max_attempts: int = 3
+) -> Callable[[AgentState], dict]:
+    """Build a node that turns a successful run into a structured report.
+
+    Only reached after the code succeeded, so execution is present and clean.
+    """
+
+    def write_report(state: AgentState) -> dict:
+        execution = state["execution"]
+        report = build_report(
+            state["question"],
+            execution.stdout.strip(),
+            backend=backend,
+            chart_files=_chart_files(execution),
+            max_attempts=max_attempts,
+        )
+        return {"report": report}
+
+    return write_report
 
 
 def finalize(state: AgentState) -> dict:

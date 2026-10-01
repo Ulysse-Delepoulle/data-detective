@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Optional, TypedDict
 
+from ..report.models import AnalysisReport
 from ..sandbox.executor import ExecutionResult
 
 
@@ -23,4 +24,5 @@ class AgentState(TypedDict):
     attempts: int                      # how many code attempts so far
 
     # Output, filled in at the end.
-    answer: str
+    answer: str                        # raw stdout, or a failure message
+    report: Optional[AnalysisReport]   # the structured deliverable, if built

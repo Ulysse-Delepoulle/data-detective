@@ -26,6 +26,8 @@ SYSTEM_PROMPT = (
     "    df = pd.read_csv(os.environ['DATASET_PATH'])\n"
     "- You may use pandas, numpy, matplotlib, and seaborn only.\n"
     "- Print the final answer clearly using print().\n"
+    "- Also print the key numbers behind the answer, so the figures are "
+    "visible in the output, not just the conclusion.\n"
     "- Reply with exactly one Python code block and nothing else."
 )
 

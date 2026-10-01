@@ -24,6 +24,17 @@ GOOD_CODE = (
 )
 BAD_CODE = "print(this_name_does_not_exist)\n"
 
+# A valid JSON report, used as the scripted reply for the write_report node
+# after the code succeeds. The backend wraps every reply in a fence, which
+# the report builder strips before parsing.
+REPORT_JSON = (
+    '{"question": "Total revenue by region.", '
+    '"finding": "The West region has the highest revenue.", '
+    '"supporting_numbers": ["West: 95.5"], '
+    '"method": "Summed units times price grouped by region.", '
+    '"caveats": []}'
+)
+
 DATASET = "data/sample_datasets/sample_sales.csv"
 QUESTION_OK = "Total revenue by region."
 
@@ -80,13 +91,17 @@ class ScriptedBackend(LLMBackend):
 
 @pytest.mark.docker
 def test_retry_then_success():
-    backend = ScriptedBackend([BAD_CODE, GOOD_CODE])
+    # Replies in order: bad code, good code, then the JSON report that the
+    # write_report node asks for once the code has succeeded.
+    backend = ScriptedBackend([BAD_CODE, GOOD_CODE, REPORT_JSON])
     final = run_agent(QUESTION_OK, DATASET, backend=backend, max_attempts=3)
     try:
-        assert backend.calls == 2          # failed once, then succeeded
-        assert final["attempts"] == 2
+        assert backend.calls == 3          # one bad code, one good code, one report
+        assert final["attempts"] == 2      # attempts counts code writes only
         assert final["execution"].exit_code == 0
         assert "West" in final["answer"]   # the good code's output
+        assert final["report"] is not None
+        assert "West" in final["report"].finding
     finally:
         shutil.rmtree(final["execution"].work_dir, ignore_errors=True)
 
