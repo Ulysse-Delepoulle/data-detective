@@ -186,5 +186,30 @@ CASES: tuple[BenchmarkCase, ...] = (
         "How many customers with Fiber optic internet service churned (Churn equals Yes)?",
         ("1297",), tier="hard",
     ),
+
+    # Harder still: data cleaning, a ratio, a correlation sign, a filtered
+    # median. These probe the agent's limits and may not always pass.
+    BenchmarkCase(
+        "telco_totalcharges_sum", "telco_churn.csv",
+        "What is the sum of the TotalCharges column? The column may contain blank "
+        "or non-numeric values; treat those as missing. Round to the nearest whole number.",
+        ("16056169",), tier="hard",
+    ),
+    BenchmarkCase(
+        "super_profit_margin", "superstore.csv",
+        "What is the overall profit margin, that is total Profit as a percentage of "
+        "total Sales, rounded to one decimal place?",
+        ("12.5",), tier="hard",
+    ),
+    BenchmarkCase(
+        "super_discount_profit_corr", "superstore.csv",
+        "Is the correlation between Discount and Profit positive or negative?",
+        ("negative",), tier="hard",
+    ),
+    BenchmarkCase(
+        "titanic_firstclass_median_age", "titanic.csv",
+        "What is the median age of first-class passengers (Pclass equals 1)?",
+        ("37",), tier="hard",
+    ),
 )
 

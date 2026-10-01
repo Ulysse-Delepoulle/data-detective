@@ -28,14 +28,33 @@ SYSTEM_PROMPT = (
     "- Print the final answer clearly using print().\n"
     "- Also print the key numbers behind the answer, so the figures are "
     "visible in the output, not just the conclusion.\n"
-    "- If the question asks for a chart, plot, trend over time, distribution, or "
-    "any visual comparison, create it with matplotlib and save it to the current "
-    "directory with plt.savefig('chart.png', bbox_inches='tight'). Do not call "
-    "plt.show(). You may save more than one figure under different names. Always "
-    "also print the exact data series behind any chart you save, so the real "
-    "numbers appear in the output.\n"
     "- Reply with exactly one Python code block and nothing else."
 )
+
+# Appended to the system prompt only for questions that ask for a chart, so
+# non-visual questions keep the leaner prompt and a higher first-try hit rate.
+_PLOT_RULE = (
+    "\n- This question asks for a visualization. Create it with matplotlib and "
+    "save it to the current directory with "
+    "plt.savefig('chart.png', bbox_inches='tight'). Do not call plt.show(). "
+    "Always also print the exact data series behind the chart, so the real "
+    "numbers appear in the output."
+)
+
+_VIZ_KEYWORDS = (
+    "plot", "chart", "graph", "visual", "trend", "distribution",
+    "histogram", "over time", "evolution", "evolution of",
+)
+
+
+def wants_visualization(question: str) -> bool:
+    q = question.lower()
+    return any(keyword in q for keyword in _VIZ_KEYWORDS)
+
+
+def build_system_prompt(question: str) -> str:
+    """The base rules, plus the plotting rule only when a chart is requested."""
+    return SYSTEM_PROMPT + (_PLOT_RULE if wants_visualization(question) else "")
 
 
 @dataclass
@@ -97,7 +116,7 @@ def answer_question(
 ) -> SingleStepResult:
     """Run the full single-step flow and return every stage's output."""
     prompt = build_prompt(question, dataset_path)
-    reply = backend.generate(prompt, system=SYSTEM_PROMPT)
+    reply = backend.generate(prompt, system=build_system_prompt(question))
     code = extract_code(reply)
     execution = run_code(code, dataset_path=dataset_path, config=config)
     return SingleStepResult(

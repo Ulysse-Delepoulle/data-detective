@@ -17,7 +17,7 @@ from ..llm.base import LLMBackend
 from ..report.builder import build_report
 from ..sandbox.config import DEFAULT_CONFIG, SandboxConfig
 from ..sandbox.executor import ExecutionResult, run_code
-from .single_step import SYSTEM_PROMPT, build_prompt, extract_code
+from .single_step import build_prompt, build_system_prompt, extract_code
 from .state import AgentState, AttemptRecord
 
 # File extensions we treat as charts worth listing in the report.
@@ -42,7 +42,8 @@ def _prompt_for_attempt(state: AgentState) -> str:
 def make_write_code_node(backend: LLMBackend) -> Callable[[AgentState], dict]:
     def write_code(state: AgentState) -> dict:
         prompt = _prompt_for_attempt(state)
-        reply = backend.generate(prompt, system=SYSTEM_PROMPT)
+        system = build_system_prompt(state["question"])
+        reply = backend.generate(prompt, system=system)
         code = extract_code(reply)
         return {"code": code, "attempts": state["attempts"] + 1}
 
