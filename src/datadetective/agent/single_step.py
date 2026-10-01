@@ -37,7 +37,15 @@ _PLOT_RULE = (
     "\n- This question asks for a visualization. Create it with matplotlib and "
     "save it to the current directory with "
     "plt.savefig('chart.png', bbox_inches='tight'). Do not call plt.show(). "
-    "Always also print the exact data series behind the chart, so the real "
+    "Make the chart readable:\n"
+    "    - set a wide figure, for example plt.figure(figsize=(11, 5));\n"
+    "    - add a title and label both axes;\n"
+    "    - if the x-axis has many or long labels, rotate them with "
+    "plt.xticks(rotation=45, ha='right') and show at most about 12 ticks by "
+    "thinning them (for example set_xticks on a subset), so they do not "
+    "overlap;\n"
+    "    - call plt.tight_layout() before saving.\n"
+    "  Always also print the exact data series behind the chart, so the real "
     "numbers appear in the output."
 )
 
