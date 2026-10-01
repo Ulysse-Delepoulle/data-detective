@@ -6,10 +6,23 @@ If a step needs to know something, it lives here, not in hidden variables.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Optional, TypedDict
 
 from ..report.models import AnalysisReport
 from ..sandbox.executor import ExecutionResult
+
+
+@dataclass
+class AttemptRecord:
+    """One code attempt, kept so the UI can show the full reasoning trail."""
+
+    attempt: int        # 1-based attempt number
+    code: str           # the code the model wrote on this attempt
+    stdout: str
+    stderr: str
+    exit_code: int
+    timed_out: bool
 
 
 class AgentState(TypedDict):
@@ -22,6 +35,7 @@ class AgentState(TypedDict):
     code: str                          # the latest code the model wrote
     execution: Optional[ExecutionResult]  # the latest sandbox result
     attempts: int                      # how many code attempts so far
+    history: list[AttemptRecord]       # every attempt, in order
 
     # Output, filled in at the end.
     answer: str                        # raw stdout, or a failure message

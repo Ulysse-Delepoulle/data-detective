@@ -1,0 +1,9 @@
+# Visual theme for the DataDetective app. A restrained, dark steel-blue and
+# slate palette aimed at a professional data-dashboard look.
+[theme]
+base = "dark"
+primaryColor = "#4C84D6"
+backgroundColor = "#0E1217"
+secondaryBackgroundColor = "#161B22"
+textColor = "#EDF1F7"
+font = "sans serif"

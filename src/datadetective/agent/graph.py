@@ -72,6 +72,7 @@ def run_agent(
         "code": "",
         "execution": None,
         "attempts": 0,
+        "history": [],
         "answer": "",
         "report": None,
     }
